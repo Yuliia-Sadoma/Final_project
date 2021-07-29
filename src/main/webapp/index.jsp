@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <title>First JSP App</title>
 </head>  
-<body style="color:#ff6c36">
+<body style="color:cyan">
 <h2>Hello my name is Julia Sadoma!</h2>
 <h3>This is my Final Project!</h3>
 </body>
