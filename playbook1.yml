@@ -23,7 +23,7 @@
         state: present
     - name: Start the container
       docker_container:
-        name: "newapp"
+        name: "finalproject"
         image: "ysadoma/application:{{DOCKER_TAG}}"
         state: started
         published_ports:
