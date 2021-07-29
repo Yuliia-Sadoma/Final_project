@@ -1,0 +1,30 @@
+---
+- hosts: ubuntu
+  become: True
+  tasks:
+    - name: Update apt-get repo and cache
+      apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+    - name: Install python pip
+      apt:
+        name: python3-pip
+        state: present
+    - name: Install docker
+      apt:
+        name: docker.io
+        state: present
+    - name: start docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Install docker-py python module
+      pip:
+        name: docker-py
+        state: present
+    - name: Start the container
+      docker_container:
+        name: "newapp"
+        image: "ysadoma/newapp:{{DOCKER_TAG}}"
+        state: started
+        published_ports:
+          - 0.0.0.0:8888:8080

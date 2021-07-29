@@ -1,0 +1,44 @@
+pipeline{
+    agent any
+    tools {
+      maven 'maven3'
+    }
+    environment {
+      DOCKER_TAG = getVersion()
+    }
+    stages{
+        stage('Clone Repo'){
+            steps{
+                git credentialsId: 'github', 
+                    url: 'https://github.com/Yuliia-Sadoma/DevOps_online_Kyiv_2020Q42021Q1_Project'
+            }
+        }
+        stage('Maven Build'){
+            steps{
+                sh "mvn clean package"
+            }
+        }
+        stage('Docker Build'){
+            steps{
+                sh "docker build . -t ysadoma/newapp:${DOCKER_TAG}"
+            }
+        }
+        stage('Push to DockerHub'){
+            steps{
+                withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
+                    sh "docker login -u ysadoma -p ${dockerHubPwd}"
+                }
+                sh "docker push ysadoma/newapp:${DOCKER_TAG} "
+            }
+        }
+        stage('Docker Deploy'){
+            steps{
+              ansiblePlaybook credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'ubuntu.inv', playbook: 'playbook.yml'
+            }
+        }
+    }
+}
+def getVersion(){
+    def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
+    return commitHash
+}
